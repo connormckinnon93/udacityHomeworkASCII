@@ -40,6 +40,11 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
+class Art(db.Model):
+    title = db.StringProperty(required = True)
+    art = db.TextProperty(required = True)
+    created = db.DateTimeProperty(auto_now_add = True)
+
 
 class MainPage(Handler):
     def render_front(self, title="", art="", error=""):
@@ -53,7 +58,10 @@ class MainPage(Handler):
         art = self.request.get("art")
 
         if title and art:
-            self.write("Thanks")
+            a = Art(title = title, art = art)
+            a.put()
+
+            self.redirect("/")
         else:
             error = "We need more information from you!"
             self.render_front(title, art, error)
