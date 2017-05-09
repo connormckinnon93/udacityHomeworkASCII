@@ -17,6 +17,8 @@ import jinja2
 import webapp2
 import cgi
 
+from google.appengine.ext import db
+
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
@@ -40,9 +42,21 @@ class Handler(webapp2.RequestHandler):
 
 
 class MainPage(Handler):
+    def render_front(self, title="", art="", error=""):
+        self.render("index.html", title=title, art=art, error=error)
 
     def get(self):
-        self.render("index.html")
+        self.render_front()
+
+    def post(self):
+        title = self.request.get("title")
+        art = self.request.get("art")
+
+        if title and art:
+            self.write("Thanks")
+        else:
+            error = "We need more information from you!"
+            self.render_front(title, art, error)
 
 app = webapp2.WSGIApplication([
     ('/', MainPage)
