@@ -40,15 +40,19 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
+
 class Art(db.Model):
-    title = db.StringProperty(required = True)
-    art = db.TextProperty(required = True)
-    created = db.DateTimeProperty(auto_now_add = True)
+    title = db.StringProperty(required=True)
+    art = db.TextProperty(required=True)
+    created = db.DateTimeProperty(auto_now_add=True)
 
 
 class MainPage(Handler):
+
     def render_front(self, title="", art="", error=""):
-        self.render("index.html", title=title, art=art, error=error)
+        arts = db.GqlQuery("SELECT * FROM Art ORDER BY created DESC")
+
+        self.render("index.html", title=title, art=art, error=error, arts=arts)
 
     def get(self):
         self.render_front()
@@ -58,7 +62,7 @@ class MainPage(Handler):
         art = self.request.get("art")
 
         if title and art:
-            a = Art(title = title, art = art)
+            a = Art(title=title, art=art)
             a.put()
 
             self.redirect("/")
